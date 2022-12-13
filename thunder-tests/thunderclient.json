@@ -17,5 +17,19 @@
       "form": []
     },
     "tests": []
+  },
+  {
+    "_id": "36871afc-bbcb-4e26-bc06-409e54e25f07",
+    "colId": "a2f28225-e26e-43d4-bffe-8e8e9a859bdf",
+    "containerId": "",
+    "name": "ReadAllUsers",
+    "url": "http://localhost:9002/users",
+    "method": "GET",
+    "sortNum": 20000,
+    "created": "2022-12-13T15:41:17.116Z",
+    "modified": "2022-12-13T15:41:24.141Z",
+    "headers": [],
+    "params": [],
+    "tests": []
   }
 ]

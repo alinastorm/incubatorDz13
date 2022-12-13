@@ -1,4 +1,4 @@
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, ObjectId } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 // import { RepositoryMongoose } from "../../_common/abstractions/Repository/Repository-mongoose";
@@ -25,7 +25,7 @@ export interface AuthView {
     createdAt: string
 }
 export interface AuthBd {
-    id: string
+    _id: ObjectId
     userId: string
     /**  maxLength: 20 minLength: 6 */
     passwordHash: string
@@ -43,11 +43,11 @@ export interface MeView {
 export type AuthDocument = HydratedDocument<AuthBd>;
 
 @Schema()
-export class Auth {
-    @Prop() id: String
-    @Prop() userId: String
-    @Prop() passwordHash: String    
-    @Prop() createdAt: String
+export class Auth implements AuthBd {
+    @Prop() _id: ObjectId
+    @Prop() userId: string
+    @Prop() passwordHash: string
+    @Prop() createdAt: string
 }
 export const AuthSchema = SchemaFactory.createForClass(Auth);
 

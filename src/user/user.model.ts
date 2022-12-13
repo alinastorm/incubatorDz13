@@ -14,7 +14,7 @@ export interface UserView {
     createdAt?: string //	TODO в дз не обязательный в интерфей
 }
 export interface UserBd {
-    id: string
+    _id: string
     login: string
     email: string
     confirm: boolean //мое
@@ -50,28 +50,24 @@ export interface UsersSearchPaginationMongoDb {
 export type UserBdDocument = HydratedDocument<UserBd>;
 export type UserViewDocument = HydratedDocument<UserView>;
 
-@Schema()
-export class User {
+@Schema({ versionKey: false })
+export class User implements UserBd {
 
-    @Prop() id: String
-    @Prop() login: String
-    @Prop() email: String
-    @Prop() confirm: Boolean //мое
-    @Prop() createdAt: String //	TODO в дз не обязательный в интерфей
+    @Prop() _id: string
+    @Prop() login: string
+    @Prop() email: string
+    @Prop() confirm: boolean //мое
+    @Prop() createdAt: string //	TODO в дз не обязательный в интерфей
 
 }
-export function userViewDataMapper(value: LeanDocument<UserBd & Required<{ _id: string; }>> | null): UserView | null {
-    if (!value) return null
-    const result: UserView = {
-        id: value._id ?? value.id,//value.id так как пихаю в старый модуль repository а он мапит _id=>id 
-        login: value.login,
-        email: value.email,
-        createdAt: value.createdAt //	TODO в дз не обязательный в интерфей
-    }
-    return result;
+export function userViewDataMapper(value: UserBdDocument | null): UserView | null {
+    return value ?
+        {
+            id: value._id.toString(), //?? value.id,//value.id так как пихаю в старый модуль repository а он мапит _id=>id 
+            login: value.login,
+            email: value.email,
+            createdAt: value.createdAt //	TODO в дз не обязательный в интерфей
+        } : null
 }
-// @Injectable()
-// export class UserMongoose{
-//     userSchema = SchemaFactory.createForClass(User);
-// }
+
 export const UserSchema = SchemaFactory.createForClass(User);

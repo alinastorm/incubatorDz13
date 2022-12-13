@@ -1,5 +1,5 @@
 // import { Request } from 'express';
-import { Request,Response } from 'express-serve-static-core';
+import { Request, Response } from 'express-serve-static-core';
 
 import { IncomingHttpHeaders } from 'node:http';
 // import { AccessTokenPayloadModel, RefreshTokenPayloadModel } from '../../../Auth/Tokenization/tokens-types';
@@ -29,17 +29,25 @@ export interface RequestWithCookies<T> extends Request {
 export interface RequestWithHeaders<T extends IncomingHttpHeaders> extends Request {
     headers: T;
 }
-// export interface RequestWithAccessTokenJWTBearer extends Request {
-//     authorization?: string
-//     user?: AccessTokenPayloadModel
-// }
-// export interface RequestWithrefreshTokenJWTBearer extends Request {
-//     authorization?: string
-//     user?: RefreshTokenPayloadModel
-// }
-// export type RequestWithUser<U> = Request & U
+
 export type ResponseWithCode<C extends number> = Response<{}, {}, C>
 export type ResponseWithBodyCode<B, C extends number> = Response<B, {}, C>
 export interface ResponseWithCookies<T> extends Response {
     cookies: T;
+}
+
+
+export interface Paginator<T> {
+    pagesCount: number
+    page: number
+    pageSize: number
+    totalCount: number
+    items: T[]
+}
+export interface PaginatorQueries {
+    searchNameTerm: string,
+    pageNumber: number,
+    pageSize: number,
+    sortBy: string,
+    sortDirection: 1 | -1 
 }

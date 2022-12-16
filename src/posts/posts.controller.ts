@@ -6,10 +6,10 @@ import { PostsService } from './posts.service';
 @Controller('posts')
 export class PostsController {
 
-    constructor(protected postService: PostsService) { }
+    constructor(private postService: PostsService) { }
 
     @Get(":postId/comments")
-    readAllCommentsfromPost() {        
+    readAllCommentsfromPost() {
      }
     @Get()
     readAllPosts(queries: PaginatorQueries) {

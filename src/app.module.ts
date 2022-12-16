@@ -16,6 +16,8 @@ import { PostsService } from './posts/posts.service';
 import { CryptoService } from './_commons/services/crypto-service';
 import { Blog, BlogSchema } from './blogs/blog.model';
 import { Post, PostSchema } from './posts/post.model';
+import { CommentsService } from './comments/comments.service';
+import { CommentSchema, Comment } from './comments/comment.module';
 
 @Module({
   imports: [
@@ -24,10 +26,11 @@ import { Post, PostSchema } from './posts/post.model';
     MongooseModule.forFeature([{ name: Blog.name, schema: BlogSchema }]),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MongooseModule.forFeature([{ name: Auth.name, schema: AuthSchema }]),
+    MongooseModule.forFeature([{ name: Comment.name, schema: CommentSchema }]),
   ],
   // imports: [MongooseModule, UserModule],
-  controllers: [AppController, UserController, PostsController, CommentsController, BlogsController, TestingController],
-  providers: [AppService, CryptoService, UserService, BlogsService, PostsService],
+  controllers: [AppController, UserController, PostsController, CommentsController, BlogsController, TestingController,CommentsController],
+  providers: [AppService, CryptoService, UserService, BlogsService, PostsService, CommentsService],
   // providers: [AppService, UserService,UserSchemaClass],
 })
 export class AppModule { }

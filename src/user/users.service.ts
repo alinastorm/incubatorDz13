@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, Injectable, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserBd, UserBdDocument, UserInput, userViewDataMapper, UserView } from './user.model';
 import { Model, ObjectId } from 'mongoose';
@@ -21,7 +21,6 @@ export class UserService {
         return users.map(userViewDataMapper)
     }
     async addOne({ email, login, password }: UserInput): Promise<UserView | HttpException> {
-
         //проверка уникальный login
         const usersRegistered = await this.UserModel.find({ login }).lean()
         if (usersRegistered.length) throw new HttpException([{ message: "login exist", field: "login" }], HTTP_STATUSES.BAD_REQUEST_400)
@@ -36,6 +35,7 @@ export class UserService {
         return user
     }
     async deleteOne(id: string) {
-        return (await this.UserModel.deleteOne({ _id: id })).deletedCount === 1
+        const result = (await this.UserModel.deleteOne({ _id: id })).deletedCount === 1
+        if (!result) throw new HttpException([{ message: "user not found", field: "id" }], HTTP_STATUSES.NOT_FOUND_404)
     }
 }

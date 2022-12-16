@@ -2,3 +2,4 @@
 1.0.1 feat: some routes
 1.0.2 feat: User validation
 1.0.3 feat: refactor
+1.0.4 feat: changes

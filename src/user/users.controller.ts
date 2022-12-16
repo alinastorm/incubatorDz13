@@ -19,7 +19,7 @@ import { Response } from 'express';
 
     @Delete(":id") @HttpCode(204)
     async deleteOneUserById(@Param("id") id: string) {
-        return await this.userService.deleteOne(id)
+        await this.userService.deleteOne(id)
     }
 
 }

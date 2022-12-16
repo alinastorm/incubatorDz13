@@ -1,5 +1,5 @@
 import { Document, HydratedDocument, ObjectId, SchemaTypes } from "mongoose"
-import { LikeStatus } from "src/likes/like.model"
+import { LikeStatus } from "src/comments/like.model"
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 //Types

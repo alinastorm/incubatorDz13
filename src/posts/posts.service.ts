@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Blog, BlogBdDocument } from 'src/blogs/blog.model';
-import { LikeStatus } from 'src/likes/like.model';
+import { LikeStatus } from 'src/comments/like.model';
 import { setPaginator } from 'src/_commons/helpers/paginator';
 import { Paginator, PaginatorQueries } from 'src/_commons/types/types';
 import { ExtendedLikesInfoBd,Post, PostBd, PostBdDocument, PostInput, PostView, postViewDataMapper } from './post.model';

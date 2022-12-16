@@ -1,5 +1,5 @@
 import { Controller, Get, Body, Post, Param, Query, Res, Delete, HttpCode } from '@nestjs/common';
-import { UserInput, UserViewDocument, userViewDataMapper } from './user.model';
+import { UserInput, UserViewDocument, userViewDataMapper, UserInputDto } from './user.model';
 import { UserService } from './users.service';
 import { Response } from 'express';
 //TODO
@@ -13,17 +13,13 @@ import { Response } from 'express';
     }
 
     @Post()
-    async addOneUser(
-        @Body()
-        body: UserInput): Promise<UserViewDocument | any> {
+    async addOneUser(@Body() body: UserInputDto): Promise<UserViewDocument | any> {
         return await this.userService.addOne(body)
     }
 
     @Delete(":id")
     @HttpCode(204)
-    async deleteOneUserById(
-        @Param("id") id: string
-    ) {
+    async deleteOneUserById(@Param("id") id: string) {
         return await this.userService.deleteOne(id)
     }
 

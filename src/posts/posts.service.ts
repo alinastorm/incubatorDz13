@@ -36,16 +36,17 @@ export class PostsService {
         const { blogId, content, shortDescription, title } = data
         const createdAt = new Date().toISOString()
         const blog = await this.BlogModel.findById(blogId)
-        if (!blog) throw new Error("return res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400)")
+        // if (!blog) throw new Error("return res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400)")
         const { name: blogName } = blog
         const extendedLikesInfo: ExtendedLikesInfoBd = {
             likes: [],
             deslike: []
         }
-        const elementPost: Omit<PostBd, "_id"> = { blogId, blogName, content, createdAt, extendedLikesInfo, shortDescription, title }
+        const elementPost: Post = { blogId, blogName, content, createdAt, extendedLikesInfo, shortDescription, title }
         this.PostModel.schema.virtual('extendedLikesInfo.myStatus').get(function () {
             return LikeStatus.None;
         });
+        await this.PostModel.validate()
         const post = await this.PostModel.create(elementPost).then(postViewDataMapper)
         return post
     }

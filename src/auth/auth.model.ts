@@ -1,5 +1,5 @@
-import { HydratedDocument, ObjectId } from 'mongoose';
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { HydratedDocument, ObjectId, SchemaTypes } from 'mongoose';
+import { Prop, Schema, SchemaFactory, } from '@nestjs/mongoose';
 
 // import { RepositoryMongoose } from "../../_common/abstractions/Repository/Repository-mongoose";
 
@@ -43,8 +43,9 @@ export interface MeView {
 export type AuthDocument = HydratedDocument<AuthBd>;
 
 @Schema()
-export class Auth implements AuthBd {
-    @Prop() _id: ObjectId
+export class Auth implements Omit<AuthBd, '_id'> {
+
+    // @Prop({ type: SchemaTypes.ObjectId }) _id: ObjectId //если объявить то при создании необходимо указать ObjectId если не указать MongoDb само генерирует
     @Prop() userId: string
     @Prop() passwordHash: string
     @Prop() createdAt: string

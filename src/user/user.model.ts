@@ -1,6 +1,9 @@
-import { Controller, Get, Body, Post, Param, Query, Delete, Injectable } from '@nestjs/common';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, LeanDocument } from 'mongoose';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsEmail } from 'class-validator';
+import { HydratedDocument } from 'mongoose';
+import { MaxLength, MinLength, ArrayMinSize, IsArray, IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+
 
 export interface UserInput {
     login: string // maxLength: 10 minLength: 3
@@ -46,20 +49,29 @@ export interface UsersSearchPaginationMongoDb {
      */
     sortDirection: 1 | -1
 }
+export class UserInputDto {
+    @IsNotEmpty() @IsString() @MinLength(3) @MaxLength(10) @ApiProperty()
+    login: string /**  maxLength: 10 minLength: 3*/
+    @IsNotEmpty() @IsString() @MinLength(6) @MaxLength(20) @ApiProperty()
+    password: string // maxLength: 20 minLength: 6
+    @IsEmail() @ApiProperty({ default: "753464@gmail.com" })
+    email: string // pattern: ^ [\w -\.] +@([\w -] +\.) +[\w -]{ 2, 4 } $ 
+}
 
 export type UserBdDocument = HydratedDocument<UserBd>;
 export type UserViewDocument = HydratedDocument<UserView>;
 
 @Schema({ versionKey: false })
-export class User implements UserBd {
+export class User implements Omit<UserBd, '_id'> {
 
-    @Prop() _id: string
-    @Prop() login: string
-    @Prop() email: string
+    @Prop({ required: true }) login: string
+    @Prop() @IsEmail() email: string
     @Prop() confirm: boolean //мое
-    @Prop() createdAt: string //	TODO в дз не обязательный в интерфей
+    @Prop() createdAt: string 
 
 }
+export const UserSchema = SchemaFactory.createForClass(User);
+
 export function userViewDataMapper(value: UserBdDocument | null): UserView | null {
     return value ?
         {
@@ -70,4 +82,3 @@ export function userViewDataMapper(value: UserBdDocument | null): UserView | nul
         } : null
 }
 
-export const UserSchema = SchemaFactory.createForClass(User);

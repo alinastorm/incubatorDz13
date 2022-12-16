@@ -9,8 +9,7 @@ export class PostsController {
     constructor(protected postService: PostsService) { }
 
     @Get(":postId/comments")
-    readAllCommentsfromPost() {
-        
+    readAllCommentsfromPost() {        
      }
     @Get()
     readAllPosts(queries: PaginatorQueries) {

@@ -1,4 +1,4 @@
-import { Document,HydratedDocument, ObjectId } from "mongoose"
+import { Document, HydratedDocument, ObjectId, SchemaTypes } from "mongoose"
 import { LikeStatus } from "src/likes/like.model"
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
@@ -35,7 +35,7 @@ export interface ExtendedLikesInfoBd {
     /** Deslike */
     deslike: LikeDetails[]
 }
-export interface VirtualFieldsPost {
+export interface VirtualExtendedLikesInfoBd {
     /** Virtual field */
     dislikesCount: number
     /** Virtual field */
@@ -69,7 +69,8 @@ export interface LikeDetails {
 // export type PostBdDocument = Document<unknown, any, Post> & Post & Required<{
 //     _id: string;
 // }>
-export type PostBdDocument = HydratedDocument<Post>;
+export type PostBdDocument = HydratedDocument<PostBd & { extendedLikesInfo: VirtualExtendedLikesInfoBd }>;
+
 export type PostViewDocument = HydratedDocument<PostView>;
 
 @Schema({ versionKey: false })
@@ -79,20 +80,20 @@ export class LikeDetails implements LikeDetails {
     @Prop() login: string //	string    nullable: true} 
 }
 @Schema({ versionKey: false })
-export class ExtendedLikesInfo implements ExtendedLikesInfoBd, VirtualFieldsPost {
+export class ExtendedLikesInfo implements ExtendedLikesInfoBd {
 
     /** Likes */
     @Prop() likes: LikeDetails[]
     /** Deslike */
     @Prop() deslike: LikeDetails[]
     /** Virtual field */
-    @Prop() dislikesCount: number
+    // @Prop() dislikesCount: number
     /** Virtual field */
-    @Prop() likesCount: number
+    // @Prop() likesCount: number
     /** Virtual field */
-    @Prop() myStatus: LikeStatus
+    // @Prop() myStatus: LikeStatus
     /** Virtual field */
-    @Prop() newestLikes: LikeDetails[] | []
+    // @Prop() newestLikes: LikeDetails[] | []
 }
 export const ExtendedLikesInfoSchema = SchemaFactory.createForClass(ExtendedLikesInfo);
 ExtendedLikesInfoSchema.virtual('likesCount').get(function (this: ExtendedLikesInfo) {
@@ -105,9 +106,9 @@ ExtendedLikesInfoSchema.virtual('newestLikes').get(function (this: ExtendedLikes
     return this.likes.slice(0, 3);
 });
 @Schema({ versionKey: false })
-export class Post implements PostBd {
+export class Post implements Omit<PostBd, '_id'> {
 
-    @Prop() _id: ObjectId
+    // @Prop({ type: SchemaTypes.ObjectId }) _id: ObjectId //если объявить то при создании необходимо указать ObjectId если не указать MongoDb само генерирует
     @Prop() title: string
     @Prop() shortDescription: string
     @Prop() content: string

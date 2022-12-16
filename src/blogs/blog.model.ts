@@ -1,4 +1,4 @@
-import { HydratedDocument, ObjectId } from "mongoose"
+import { HydratedDocument, ObjectId, SchemaTypes } from "mongoose"
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 
@@ -26,15 +26,17 @@ export type BlogBdDocument = HydratedDocument<BlogBd>;
 export type BlogViewDocument = HydratedDocument<BlogView>;
 
 @Schema({ versionKey: false })
-export class Blog implements BlogBd {
+export class Blog implements Omit<BlogBd, '_id'>   {
 
-    @Prop() _id: ObjectId
+    // @Prop({ type: SchemaTypes.ObjectId }) _id: ObjectId //если объявить то при создании необходимо указать ObjectId если не указать MongoDb само генерирует
     @Prop() name: string
     @Prop() description: string
-    @Prop() websiteUrl: string 
+    @Prop() websiteUrl: string
     @Prop() createdAt: string //	TODO в дз не обязательный в интерфей
 
 }
+export const BlogSchema = SchemaFactory.createForClass(Blog);
+
 export function BlogViewDataMapper(value: BlogBdDocument | null): BlogView | null {
     return value ?
         {
@@ -45,5 +47,3 @@ export function BlogViewDataMapper(value: BlogBdDocument | null): BlogView | nul
             websiteUrl: value.websiteUrl
         } : null
 }
-
-export const BlogSchema = SchemaFactory.createForClass(Blog);

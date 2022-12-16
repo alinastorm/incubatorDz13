@@ -17,8 +17,7 @@ import { Response } from 'express';
         return await this.userService.addOne(body)
     }
 
-    @Delete(":id")
-    @HttpCode(204)
+    @Delete(":id") @HttpCode(204)
     async deleteOneUserById(@Param("id") id: string) {
         return await this.userService.deleteOne(id)
     }

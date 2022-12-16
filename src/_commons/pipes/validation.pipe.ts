@@ -1,14 +1,12 @@
 import { ValidationPipe, HttpException } from "@nestjs/common"
-import { BadRequestException, UnprocessableEntityException } from "@nestjs/common/exceptions"
-import { ValidationError } from "@nestjs/common/interfaces/external/validation-error.interface";
-import { ArgumentMetadata } from "@nestjs/common/interfaces/features/pipe-transform.interface"
 import { HTTP_STATUSES } from "../types/types"
 
 
 export default new ValidationPipe(
     {
-        stopAtFirstError: true,
-        forbidUnknownValues: false,
+        stopAtFirstError: true,//по одному полю может быть много проверок, остановится на первой
+        whitelist: true,//только поля из схемы
+        forbidNonWhitelisted: true,//если лишние поля ошибка
         exceptionFactory: (errors) => {
             const errorsForResponse = []
             errors.forEach((e) => {
@@ -24,31 +22,3 @@ export default new ValidationPipe(
         }
     }
 )
-// class ValidationPipe extends ValidationP {
-//     constructor() {
-//         super({
-//             stopAtFirstError: true,
-//             forbidUnknownValues: false
-//         })
-//     }
-//     public async transform(value, metadata: ArgumentMetadata) {
-//         try {
-//             return await super.transform(value, metadata)
-//         } catch (e) {
-//             if (e instanceof BadRequestException) {
-//                 throw new UnprocessableEntityException(e.message)
-//             }
-//         }
-//     }
-// }
-
-
-// export default new ValidationPipe({
-//     transform: true,
-//     stopAtFirstError: true,
-//     forbidUnknownValues: false,
-//     exceptionFactory: (errors: ValidationError[]) => {
-//         console.log();
-//         new BadRequestException('Validation error')
-//     }
-// });

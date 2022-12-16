@@ -3,3 +3,4 @@
 1.0.2 feat: User validation
 1.0.3 feat: refactor
 1.0.4 feat: changes
+1.0.5 feat: Comments changes

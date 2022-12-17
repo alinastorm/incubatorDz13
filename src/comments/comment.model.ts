@@ -3,7 +3,9 @@ import { LikeStatus } from "src/comments/like.model"
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { MaxLength, MinLength, ArrayMinSize, IsArray, IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { isCommentByIdExist } from "src/_commons/decorators/commentId.validation.decorator";
 
+//Input
 export interface CommentInput {
     content: string //   maxLength: 300     minLength: 20
 }
@@ -11,6 +13,13 @@ export class CommentInputDto {
     @IsNotEmpty() @IsString() @ApiProperty()
     content: string
 }
+export class readCommentByIdDto {
+    @IsNotEmpty() @ApiProperty()
+    @IsString()
+    // @isCommentByIdExist()
+    id: string
+}
+//Bd
 export interface CommentBd {
 
     _id: string //nullable: true
@@ -29,6 +38,11 @@ export interface LikesInfoBd {
     /** Send None if you want to unlike\undislike */
     // myStatus: LikeStatus //	h11.LikeStatusstring Enum:    Array[3]
 }
+//virtuals
+export interface VirtualLikesInfoBd {
+    /** Send None if you want to unlike\undislike */
+    myStatus: LikeStatus //	h11.LikeStatusstring Enum:    Array[3]
+}
 export interface CommentView {
     id: string //nullable: true //TODO может быть nullable
     content: string
@@ -45,12 +59,12 @@ export interface LikesInfoView {
     /** Send None if you want to unlike\undislike */
     myStatus: LikeStatus //	h11.LikeStatusstring Enum:    Array[3]
 }
-
-export type CommentBdDocument = HydratedDocument<CommentBd>;
+//Mongoose
+export type CommentBdDocument = HydratedDocument<CommentBd & { likesInfo: VirtualLikesInfoBd }>;
 export type CommentViewDocument = HydratedDocument<CommentView>;
 
 @Schema({ versionKey: false })
-export class LikesInfo implements LikesInfoBd{
+export class LikesInfo implements LikesInfoBd {
     /** Total likes for parent item */
     likesCount: number //	integer($int32)    
     /** Total dislikes for parent item */
@@ -71,7 +85,6 @@ export class Comment implements Omit<CommentBd, '_id'> {
 
 }
 export const CommentSchema = SchemaFactory.createForClass(Comment);
-
 
 export function CommentViewDataMapper(model: CommentBdDocument | null): CommentView | null {
     return model ?

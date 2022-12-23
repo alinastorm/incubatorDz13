@@ -11,10 +11,10 @@ export class CommentsController {
         private CommentIdValidator: CommentIdValidatorPipe
     ) { }
 
-    @Get(':id/:ob')
+    @Get(':id')
     @UsePipes(CommentIdValidatorPipe)
     async readOneComment(@Param("id") commentId: string) {
-        //readCommentByIdDto
-        return await this.postService.findOne(commentId)
+        //заменил валидацию через readCommentByIdDto на pipe CommentIdValidatorPipe. Так проще
+        return await this.postService.readOneByUserId(commentId)
     }
 }

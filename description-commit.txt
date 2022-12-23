@@ -5,3 +5,4 @@
 1.0.4 feat: changes
 1.0.5 feat: Comments changes
 1.0.6 feat: Comments changes
+1.0.7 feat: All routes except Testing

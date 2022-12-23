@@ -13,8 +13,8 @@ import { Response } from 'express';
     }
 
     @Post()
-    async addOneUser(@Body() body: UserInputDto): Promise<UserViewDocument | any> {
-        return await this.userService.addOne(body)
+    async addOneUser(@Body() user: UserInputDto): Promise<UserViewDocument | any> {
+        return await this.userService.addOne(user)
     }
 
     @Delete(":id") @HttpCode(204)

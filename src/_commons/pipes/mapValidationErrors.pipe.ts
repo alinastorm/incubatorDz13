@@ -2,6 +2,7 @@ import { ValidationPipe, HttpException } from "@nestjs/common"
 import { HTTP_STATUSES } from "../types/types"
 
 //ValidationPipe использует либу Class validator для проверки типа согласно указанных в классе декораторов
+//данный pipe нужен для форматирования ответа сервера при ошибке валидации классов библиотекой Class validator    
 export default new ValidationPipe(
     {
         stopAtFirstError: true,//по одному полю может быть много проверок, остановится на первой

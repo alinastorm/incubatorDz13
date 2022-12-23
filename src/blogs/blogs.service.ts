@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
+import { HttpException } from '@nestjs/common/exceptions';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
 import { Post, PostBdDocument, PostView, postViewDataMapper } from 'src/posts/post.model';
 import { setPaginator } from 'src/_commons/helpers/paginator';
-import { Paginator, PaginatorQueries } from 'src/_commons/types/types';
+import { HTTP_STATUSES, Paginator, PaginatorQueries } from 'src/_commons/types/types';
 import { Blog, BlogBd, BlogBdDocument, BlogInput, BlogView, BlogViewDataMapper } from './blog.model';
 
 @Injectable()
@@ -14,7 +15,7 @@ export class BlogsService {
         @InjectModel(Post.name) private PostModel: Model<PostBdDocument>,
     ) { }
 
-    async readAllBlogsWithPaginator(queries: PaginatorQueries): Promise<Paginator<BlogView>> {
+    async readAllWithPaginator(queries: PaginatorQueries): Promise<Paginator<BlogView>> {
         const { pageNumber, pageSize, sortBy, sortDirection = 1 } = queries
         const docCount = await this.BlogModel.countDocuments()
 
@@ -29,25 +30,32 @@ export class BlogsService {
         const result = setPaginator(blogs, pageNumber, pageSize, docCount)
         return result
     }
-    async addOneBlog(data: BlogInput): Promise<BlogView> {
+    async addOne(data: BlogInput): Promise<BlogView> {
         const { name, websiteUrl, description } = data
         const createdAt = new Date().toISOString()
         const elementBlog: Blog = { createdAt, name, websiteUrl, description }
         const blog = await this.BlogModel.create(elementBlog).then(BlogViewDataMapper)
         return blog
     }
-    async readAllPostsFromBlog(blogId: string, queries: PaginatorQueries): Promise<Paginator<PostView>> {
-        const { pageNumber, pageSize, sortBy, sortDirection = 1 } = queries
-        const docCount = await this.PostModel.countDocuments()
-        const filter: FilterQuery<BlogView> = { blogId }
-        const postsModel = await this.PostModel
-            .find(filter)
-            .skip((pageNumber - 1) * pageSize)
-            .limit(pageSize)
-            .sort({ [sortBy]: sortDirection })
-            .lean({ virtuals: true })
-        const blogs = postsModel.map(postViewDataMapper)
-        const result = setPaginator(blogs, pageNumber, pageSize, docCount)
+    async readOne(blogId: string) {
+        const result = await this.BlogModel.findById(blogId)
+        if (!result) throw new HttpException([{ message: "blog not found", field: "id" }], HTTP_STATUSES.NOT_FOUND_404)
         return result
     }
+    async updateOne(blogId: string, data: BlogInput) {
+        const blog = await this.BlogModel.findById(blogId)
+        if (!blog) throw new HttpException([{ message: "blog not found", field: "id" }], HTTP_STATUSES.NOT_FOUND_404)
+
+        //обновляем myLike
+        const elementUpdate: Partial<BlogBd> = data
+        const result = await this.BlogModel.updateOne({ _id: blogId }, elementUpdate, { upsert: false })
+        return result
+    }
+    async deleteOne(blogId: string) {
+        const blog = await this.BlogModel.findById(blogId)
+        if (!blog) throw new HttpException([{ message: "blog not found", field: "id" }], HTTP_STATUSES.NOT_FOUND_404)
+        const result = await this.BlogModel.deleteOne({ _id: blogId })
+        return result.deletedCount === 1
+    }
+
 }

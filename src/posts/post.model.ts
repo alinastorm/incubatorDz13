@@ -1,6 +1,8 @@
 import { Document, HydratedDocument, ObjectId, SchemaTypes } from "mongoose"
 import { LikeStatus } from "src/comments/like.model"
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { MaxLength, MinLength, ArrayMinSize, IsArray, IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, IsMongoId } from 'class-validator';
+
 
 //Types
 export interface PostInput {
@@ -8,6 +10,18 @@ export interface PostInput {
     shortDescription: string//    maxLength: 100
     content: string//maxLength: 1000
     blogId: string
+}
+export class PostInputDto implements PostInput {
+    @IsString() @MinLength(1) @MaxLength(30) title: string//    maxLength: 30
+    @IsString() @MinLength(1) @MaxLength(100) shortDescription: string//    maxLength: 100
+    @IsString() @MinLength(1) @MaxLength(1000) content: string//maxLength: 1000
+    @IsMongoId() @MinLength(1) blogId: string
+}
+export class PostInputUpdateDto implements PostInput {
+    @IsString() @MaxLength(30) title: string//    maxLength: 30
+    @IsString() @MaxLength(100) shortDescription: string//    maxLength: 100
+    @IsString() @MaxLength(1000) content: string//maxLength: 1000
+    @IsMongoId() blogId: string
 }
 export interface PostBd {
     _id: ObjectId

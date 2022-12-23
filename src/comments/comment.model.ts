@@ -16,7 +16,7 @@ export class CommentInputDto {
 export class readCommentByIdDto {
     @IsNotEmpty() @ApiProperty()
     @IsString()
-    // @isCommentByIdExist()
+    // @isCommentByIdExist() заменил на pipe в контроллере 
     id: string
 }
 //Bd
@@ -43,6 +43,7 @@ export interface VirtualLikesInfoBd {
     /** Send None if you want to unlike\undislike */
     myStatus: LikeStatus //	h11.LikeStatusstring Enum:    Array[3]
 }
+//View
 export interface CommentView {
     id: string //nullable: true //TODO может быть nullable
     content: string

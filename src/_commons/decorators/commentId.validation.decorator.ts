@@ -1,16 +1,12 @@
 import { Injectable, HttpException, UnprocessableEntityException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from "mongoose";
-import {
-    registerDecorator,
-    ValidationOptions,
-    ValidatorConstraint,
-    ValidatorConstraintInterface,
-} from 'class-validator';
+import { registerDecorator, ValidationOptions, ValidatorConstraint, ValidatorConstraintInterface, } from 'class-validator';
 import { Comment, CommentBdDocument } from 'src/comments/comment.model';
 import { HTTP_STATUSES } from '../types/types';
 
 
+//Декоратор для валидации класса с помощью библиотеки Class-validator
 export function isCommentByIdExist(validationOptions?: ValidationOptions) {
     return function (object: any, propertyName: string) {
         registerDecorator({

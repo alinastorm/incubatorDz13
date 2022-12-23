@@ -2,10 +2,11 @@ import { Injectable, HttpException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from "mongoose";
 import { LikeStatus } from "./like.model";
-import { Comment, CommentBdDocument, CommentSchema, CommentViewDataMapper, LikesInfoView } from "./comment.model";
+import { Comment, CommentBdDocument, CommentSchema, CommentView, CommentViewDataMapper, LikesInfoView } from "./comment.model";
 import { Post, PostBdDocument } from 'src/posts/post.model';
 import { User, UserBdDocument } from 'src/users/user.model';
-import { HTTP_STATUSES } from 'src/_commons/types/types';
+import { HTTP_STATUSES, Paginator, PaginatorQueries } from 'src/_commons/types/types';
+import { setPaginator } from 'src/_commons/helpers/paginator';
 
 @Injectable()
 export class CommentsService {
@@ -14,10 +15,12 @@ export class CommentsService {
         @InjectModel(Post.name) private PostModel: Model<PostBdDocument>,
         @InjectModel(User.name) private UserModel: Model<UserBdDocument>,
     ) { }
-    async findOne(userId: string) {
-        CommentSchema.virtual('likesInfo.myStatus', { ref: 'Likes', localField: '_id', foreignField: 'commentId', options: { match: { userId: userId } } })//TODO всунуть в метод .Метод в модель и вызывать создание виртуальных полей. 
+    async readOneByUserId(userId: string): Promise<CommentView> {
+        CommentSchema.virtual(
+            'likesInfo.myStatus',
+            { ref: 'Likes', localField: '_id', foreignField: 'commentId', options: { match: { userId: userId } } })//TODO всунуть в метод .Метод в модель и вызывать создание виртуальных полей. 
             .get(function () { return LikeStatus.None })
-        return await this.CommentModel.findOne().populate('likesInfo.myStatus', 'myStatus')
+        return await this.CommentModel.findOne({ userId }).populate('likesInfo.myStatus', 'myStatus')
     }
     async createOne(postId: string, userId: string, content: string) {
         const post = await this.PostModel.findById(postId)
@@ -38,5 +41,23 @@ export class CommentsService {
             return comment
         }
     }
-}
+    async readAllByPostIdWithPagination(postId: string, queries: PaginatorQueries, userId?: string): Promise<Paginator<CommentView>> {
+        const filter = { postId }
+        const { pageNumber, pageSize, sortBy, sortDirection = 1 } = queries
+        const docCount = await this.CommentModel.countDocuments()
+        CommentSchema.virtual('likesInfo.myStatus', { ref: 'Likes', localField: '_id', foreignField: 'commentId', options: { match: { userId: userId } } })//TODO всунуть в метод .Метод в модель и вызывать создание виртуальных полей. 
+            .get(function () { return LikeStatus.None })
 
+        const commentsModel = await this.CommentModel
+            .find(filter)
+            .populate('likesInfo.myStatus', 'myStatus')
+            .skip((pageNumber - 1) * pageSize)
+            .limit(pageSize)
+            .sort({ [sortBy]: sortDirection })
+            .lean({ virtuals: true })
+
+        const comments = commentsModel.map(CommentViewDataMapper)
+        const result = setPaginator(comments, pageNumber, pageSize, docCount)
+        return result
+    }
+}

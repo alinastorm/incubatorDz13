@@ -1,4 +1,4 @@
-import { Injectable, HttpException, Logger } from '@nestjs/common';
+import { Injectable, HttpException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
 import { Blog, BlogBd, BlogDocument, BlogView } from '../blogs/blog.model';
@@ -13,8 +13,8 @@ export class PostsService {
         @InjectModel(Post.name) private PostModel: Model<PostDocument>,
         @InjectModel(Blog.name) private BlogModel: Model<BlogDocument>,
     ) { }
-
     async readAllWithPaginator(query: PaginatorQueries): Promise<Paginator<PostView>> {
+        // new Logger().log('readAllWithPaginator Post')
 
         const { pageNumber = 1, pageSize = 10, sortBy = 'createdAt', sortDirection = -1, searchNameTerm } = query
         let filter: FilterQuery<PostBd> = {}
@@ -25,16 +25,15 @@ export class PostsService {
             .skip((pageNumber - 1) * pageSize)
             .limit(pageSize)
             .sort({ [sortBy]: sortDirection })
-            // .lean({ virtuals: true })
+        // .lean({ virtuals: true })
 
         const posts = postsModel.map(postViewDataMapper)
         const result = setPaginator(posts, pageNumber, pageSize, count)
         return result
     }
     async addOne(data: PostInput): Promise<PostView> {
-
-        new Logger().log('addOne Post')
-        const { content, shortDescription, title,blogId } = data
+        // new Logger().log('addOne Post')
+        const { content, shortDescription, title, blogId } = data
         const createdAt = new Date().toISOString()
         const blog = await this.BlogModel.findById(blogId)
         // if (!blog) throw new Error("return res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400)")
@@ -55,8 +54,7 @@ export class PostsService {
         return post
     }
     async addOneToBlog(blogId: string, data: BlogPostInput): Promise<PostView> {
-
-        new Logger().log('addOneToBlog Post')
+        // new Logger().log('addOneToBlog Post')
 
         const { content, shortDescription, title } = data
         const createdAt = new Date().toISOString()
@@ -79,10 +77,6 @@ export class PostsService {
         return post
     }
     async readOne(postId: string, userId?: string) {
-        new Logger().log('readOne Post')
-        
-        //@ts-ignore
-        // this.PostModel.setUserId(userId)
         const post = await this.PostModel.findById(postId).then(postViewDataMapper)
 
         if (!post) {
@@ -91,22 +85,15 @@ export class PostsService {
         return post
     }
     async updateOne(postId: string, postUpdates: PostInput) {
-        new Logger().log('updateOne Post')
-        
-        const filter = { postId }
-        const result = await this.PostModel.updateOne(filter, postUpdates)
+        const result = await this.PostModel.updateOne({ _id: postId }, postUpdates)
         return result.modifiedCount === 1
     }
     async deleteOnePost(postId: string) {
-        new Logger().log('deleteOnePost Post')
-
-        const filter = { postId }
-        const result = await this.PostModel.deleteOne(filter)
+        const result = await this.PostModel.deleteOne({ _id: postId })
         return result.deletedCount === 1
-
     }
     async readAllByBlog(blogId: string, queries: PaginatorQueries): Promise<Paginator<PostView>> {
-        new Logger().log('readAllByBlog Post')
+        // new Logger().log('readAllByBlog Post')
 
         const { pageNumber = 1, pageSize = 10, sortBy = 'createdAt', sortDirection = -1, searchNameTerm } = queries
 
@@ -118,7 +105,7 @@ export class PostsService {
             .skip((pageNumber - 1) * pageSize)
             .limit(pageSize)
             .sort({ [sortBy]: sortDirection })
-            // .lean({ virtuals: true })
+        // .lean({ virtuals: true })
         const blogs = postsModel.map(postViewDataMapper)
         const result = setPaginator(blogs, pageNumber, pageSize, count)
         return result

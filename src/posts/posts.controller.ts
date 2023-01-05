@@ -1,4 +1,4 @@
-import { Controller, Get, Body, Post, Put, Param, Query, Res, Delete, HttpCode, UsePipes } from '@nestjs/common';
+import { Controller, Get, Body, Post, Put, Param, Query, Res, Delete, HttpCode, UsePipes, Logger } from '@nestjs/common';
 import { CommentsService } from '../comments/comments.service';
 import { PostIdValidatorPipe } from '../_commons/pipes/postId.validation.pipe';
 import { PaginatorQuery } from '../_commons/types/types';
@@ -27,12 +27,13 @@ export class PostsController {
     addOnePost(
         @Body() post: PostInputDto,
     ) {
+        // new Logger().log(`POST/posts`)
         return this.postService.addOne(post)
     }
 
     @Get(":id")
-    readOnePost(
-        @Param('id') postId: string
+     readOnePost(
+        @Param('id') postId: string,
     ) {
         return this.postService.readOne(postId)
     }
@@ -42,14 +43,15 @@ export class PostsController {
         @Param('id') postId: string,
         @Body() postUpdates: PostInputUpdateDto
     ) {
-        this.postService.updateOne(postId, postUpdates)
+        return this.postService.updateOne(postId, postUpdates)
     }
 
     @Delete(":id") @UsePipes(PostIdValidatorPipe) @HttpCode(204)
     deleteOnePost(
         @Param('id') postId: string
     ) {
-        this.postService.deleteOnePost(postId)
+        // new Logger().log(`Delete/posts/${postId}`)
+        return this.postService.deleteOnePost(postId)
     }
 
 }

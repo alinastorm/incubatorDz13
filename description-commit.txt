@@ -6,3 +6,5 @@
 1.0.5 feat: Comments changes
 1.0.6 feat: Comments changes
 1.0.7 feat: All routes except Testing
+1.0.8 feat: Create tests. Testing
+1.0.9 feat: dz13

@@ -3,8 +3,16 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail } from 'class-validator';
 import { HydratedDocument } from 'mongoose';
 import { MaxLength, MinLength, ArrayMinSize, IsArray, IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
 
-
+export class PaginatorUsers {
+    @IsOptional() searchLoginTerm: string
+    @IsOptional() searchEmailTerm: string
+    @IsOptional() @Type(() => Number) pageNumber: number
+    @IsOptional() @Type(() => Number) pageSize: number
+    @IsOptional() sortBy: string
+    @IsOptional() @Type(() => Number) sortDirection: 1 | -1 // asc, desc
+}
 export interface UserInput {
     login: string // maxLength: 10 minLength: 3
     password: string // maxLength: 20 minLength: 6

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserController } from './users/users.controller';
@@ -19,6 +19,7 @@ import { CommentsService } from './comments/comments.service';
 import { CommentSchema, Comment } from './comments/comment.model';
 import { CommentIdValidatorPipe } from './_commons/pipes/commentId.validation.pipe';
 import { Auth, AuthSchema } from './auth/auth.model';
+import { AppLoggerMiddleware } from './_commons/helpers/logger';
 
 @Module({
   imports: [
@@ -38,4 +39,8 @@ import { Auth, AuthSchema } from './auth/auth.model';
   ],
   // providers: [AppService, UserService,UserSchemaClass],
 })
-export class AppModule { }
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(AppLoggerMiddleware).forRoutes('*');
+  }
+ }

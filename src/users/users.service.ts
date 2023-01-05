@@ -1,6 +1,6 @@
 import { HttpException, Injectable, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User, UserBd, UserBdDocument, UserInput, userViewDataMapper, UserView } from './user.model';
+import { User, UserBd, UserBdDocument, UserInput, userViewDataMapper, UserView, PaginatorUsers } from './user.model';
 import { CallbackError, FilterQuery, Model, ObjectId } from 'mongoose';
 import { CryptoService } from '../_commons/services/crypto-service';
 import { HTTP_STATUSES, Paginator, PaginatorQueries } from '../_commons/types/types';
@@ -20,12 +20,17 @@ export class UserService {
         const users = await this.UserModel.find().lean()
         return users.map(userViewDataMapper)
     }
-    async readAllWithPaginator(query: PaginatorQueries): Promise<Paginator<UserView>> {
+    async readAllWithPaginator(query: PaginatorUsers): Promise<Paginator<UserView>> {
 
-        const { pageNumber = 1, pageSize = 10, sortBy = 'createdAt', sortDirection = -1, searchNameTerm } = query
+        const { pageNumber = 1, pageSize = 10, sortBy = 'createdAt', sortDirection = -1, searchLoginTerm, searchEmailTerm } = query
         let filter: FilterQuery<UserBd> = {}
-        if (searchNameTerm) filter.$or?.push({ email: { $regex: searchNameTerm, $options: 'i' } })
-        if (searchNameTerm) filter.$or?.push({ login: { $regex: searchNameTerm, $options: 'i' } })
+        if (searchEmailTerm || searchLoginTerm) {
+            filter = { $or: [] }
+            if (searchEmailTerm) filter.$or.push({ email: { $regex: searchEmailTerm, $options: 'i' } })
+            if (searchLoginTerm) filter.$or.push({ login: { $regex: searchLoginTerm, $options: 'i' } })
+        }
+
+        // if (searchLoginTerm) filter.$or.push({ login: { $regex: searchLoginTerm, $options: 'i' } })
         // if (searchNameTerm) filter = { login: { $regex: searchNameTerm, $options: 'i' } }
         const count = await this.UserModel.countDocuments(filter);
         const postsModel = await this.UserModel
@@ -33,7 +38,7 @@ export class UserService {
             .skip((pageNumber - 1) * pageSize)
             .limit(pageSize)
             .sort({ [sortBy]: sortDirection })
-            // .lean({ virtuals: true })
+        // .lean({ virtuals: true })
 
         const posts = postsModel.map(userViewDataMapper)
         const result = setPaginator(posts, pageNumber, pageSize, count)

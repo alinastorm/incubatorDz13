@@ -1,5 +1,5 @@
 import { Controller, Get, Body, Post, Param, Query, Res, Delete, HttpCode } from '@nestjs/common';
-import { UserInput, UserViewDocument, userViewDataMapper, UserInputDto } from './user.model';
+import { UserInput, UserViewDocument, userViewDataMapper, UserInputDto, PaginatorUsers } from './user.model';
 import { UserService } from './users.service';
 import { Response } from 'express';
 import { PaginatorQuery } from '../_commons/types/types';
@@ -10,7 +10,7 @@ import { PaginatorQuery } from '../_commons/types/types';
 
     @Get()
     async readAllUsers(
-        @Query() queries: PaginatorQuery
+        @Query() queries: PaginatorUsers
     ) {     
         return await this.userService.readAllWithPaginator(queries)
     }

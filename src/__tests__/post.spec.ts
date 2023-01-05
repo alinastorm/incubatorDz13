@@ -9,16 +9,21 @@ import { LikeStatus } from '../comments/like.model';
 
 describe('Cats', () => {
     let app: INestApplication;
-    let http
     // let postsService = { findAll: () => ['test'] };
-
+    let http
+    // user
+    const user = {
+        "login": "string5",
+        "password": "string",
+        "email": "753464@gmail.com"
+    }
     //blog
     const newBlog: BlogInput = {
         "name": "stringasda",
         "description": "stringadas",
         "websiteUrl": "https://someurl.com"
     }
-    const newBlogViewSchema: BlogView = {
+    const BlogViewSchema: BlogView = {
         id: expect.any(String),
         name: expect.any(String),
         description: expect.any(String),
@@ -40,7 +45,7 @@ describe('Cats', () => {
         myStatus: LikeStatus.None, //string Enum: Array[3]    
         newestLikes: []
     }
-    const newPostViewSchema: PostView = {
+    const PostViewSchema: PostView = {
         id: expect.any(String),
         title: expect.any(String),
         shortDescription: expect.any(String),
@@ -68,7 +73,15 @@ describe('Cats', () => {
         await app.init();
     });
     //********************************************************************* */
-    it(`1/GET posts`, () => {
+
+    test(`0/DELETE/testing/all-data`, () => {
+        return request(http).delete('/testing/all-data')
+            .expect(204)
+        // .expect({
+        //     data: postsService.findAll(),
+        // });
+    });
+    test(`1/GET posts`, () => {
         return request(http).get('/posts')
             .expect(200)
         // .expect({
@@ -80,7 +93,7 @@ describe('Cats', () => {
             // .set('Authorization', 'Basic YWRtaW46cXdlcnR5')
             .send(newBlog)
         expect(status).toBe(201)
-        expect(body).toMatchObject(newBlogViewSchema)
+        expect(body).toMatchObject(BlogViewSchema)
         expect(body.name).toBe(newBlog.name)
         expect(body.description).toBe(newBlog.description)
         expect(body.websiteUrl).toBe(newBlog.websiteUrl)
@@ -92,7 +105,7 @@ describe('Cats', () => {
         const { status, body } = await request(http).get("/blogs")
         expect(status).toBe(200)
         expect(body.items[0]).toStrictEqual(blogReceived)
-        expect(body.items[0]).toMatchObject(newBlogViewSchema)
+        expect(body.items[0]).toMatchObject(BlogViewSchema)
 
     })
     test('4/POST/posts Публикуем пост', async () => {
@@ -100,7 +113,7 @@ describe('Cats', () => {
             // .set('Authorization', 'Basic YWRtaW46cXdlcnR5')
             .send(newPost)
         expect(status).toBe(201)
-        expect(body).toMatchObject(newPostViewSchema)
+        expect(body).toMatchObject(PostViewSchema)
         expect(body.title).toBe(newPost.title)
         expect(body.shortDescription).toBe(newPost.shortDescription)
         expect(body.content).toBe(newPost.content)
@@ -112,14 +125,41 @@ describe('Cats', () => {
         const { status, body } = await request(http).put(`/posts/${postReceived.id}`)
             // .set('Authorization', 'Basic YWRtaW46cXdlcnR5')
             .send(updatePost)
-        expect(status).toBe(201)
-        expect(body).toMatchObject(newPostViewSchema)
-        expect(body.title).toBe(newPost.title)
-        expect(body.shortDescription).toBe(newPost.shortDescription)
-        expect(body.content).toBe(newPost.content)
-        expect(body.blogId).toBe(newPost.blogId)
-        postReceived = body
+        expect(status).toBe(204)
     })
+    test('6/GET/posts Получаем пост', async () => {
+        const { status, body } = await request(http).get(`/posts/${postReceived.id}`)
+        // .set('Authorization', 'Basic YWRtaW46cXdlcnR5')
+        expect(status).toBe(200)
+        expect(body).toMatchObject(PostViewSchema)
+        expect(body.content).toBe(updatePost.content)
+        expect(body.shortDescription).toBe(updatePost.shortDescription)
+        expect(body.title).toBe(updatePost.title)
+        expect(body.blogId).toBe(updatePost.blogId)
+    })
+    test('7/DELETE/posts Удаляем пост', async () => {
+        const { status, body } = await request(http).delete(`/posts/${postReceived.id}`)
+        // .set('Authorization', 'Basic YWRtaW46cXdlcnR5')     
+        expect(status).toBe(204)
+
+    })
+    test('8/GET/posts Получаем пост', async () => {
+        const { status, body } = await request(http).get(`/posts/${postReceived.id}`)
+        // .set('Authorization', 'Basic YWRtaW46cXdlcnR5')  
+        expect(status).toBe(404)
+    })
+    test('9/POST/users Создаем user', async () => {
+        const { status, body } = await request(http).post(`/users`)
+            .send(user)
+        // .set('Authorization', 'Basic YWRtaW46cXdlcnR5')  
+        expect(status).toBe(201)
+    })
+    test('10/GET/users Получаем users', async () => {
+        const { status, body } = await request(http).get(`/users`)
+        // .set('Authorization', 'Basic YWRtaW46cXdlcnR5')  
+        expect(status).toBe(200)
+    })
+
     //********************************************************************* */
     afterAll(async () => {
         await app.close();

@@ -1,9 +1,8 @@
 import { HydratedDocument, SchemaTypes } from "mongoose"
-import { LikeStatus } from "src/comments/like.model"
+import { LikeStatus } from "../comments/like.model"
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { MaxLength, MinLength, ArrayMinSize, IsArray, IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { isCommentByIdExist } from "src/_commons/decorators/commentId.validation.decorator";
 
 //Input
 export interface CommentInput {

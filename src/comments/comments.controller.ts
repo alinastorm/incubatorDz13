@@ -1,5 +1,5 @@
 import { Controller, Get, Body, Post, Param, Query, Res, Delete, HttpCode, UsePipes } from '@nestjs/common';
-import { CommentIdValidatorPipe } from 'src/_commons/pipes/commentId.validation.pipe';
+import { CommentIdValidatorPipe } from '../_commons/pipes/commentId.validation.pipe';
 import { readCommentByIdDto, } from './comment.model';
 import { CommentsService } from './comments.service';
 

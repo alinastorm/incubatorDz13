@@ -21,8 +21,8 @@ export interface BlogBd {
     websiteUrl: string
     createdAt: string//TODO в дз не обязательный в интерфейсе
 }
-export type BlogBdDocument = HydratedDocument<BlogBd>;
-export type BlogViewDocument = HydratedDocument<BlogView>;
+export type BlogDocument = HydratedDocument<BlogBd>;
+// export type BlogViewDocument = HydratedDocument<BlogView>;
 
 @Schema({ versionKey: false })
 export class Blog implements Omit<BlogBd, '_id'>   {
@@ -36,7 +36,7 @@ export class Blog implements Omit<BlogBd, '_id'>   {
 }
 export const BlogSchema = SchemaFactory.createForClass(Blog);
 
-export function BlogViewDataMapper(value: BlogBdDocument | null): BlogView | null {
+export function BlogViewDataMapper(value: BlogDocument | null): BlogView | null {
     return value ?
         {
             id: value._id.toString(),

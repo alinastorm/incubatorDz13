@@ -6,9 +6,11 @@ import { HTTP_STATUSES } from "../types/types"
 export default new ValidationPipe(
     {
         stopAtFirstError: true,//по одному полю может быть много проверок, остановится на первой
-        whitelist: true,//только поля из схемы
-        forbidNonWhitelisted: true,//если лишние поля ошибка
-        exceptionFactory: (errors) => {
+        whitelist: true,//только поля из схемы. Если true, валидатор удалит проверенный (возвращенный) объект любых свойств, которые не используют декораторы проверки.
+        forbidNonWhitelisted: true,//Если true, вместо удаления свойств, не включенных в белый список, валидатор выдаст исключение.
+        forbidUnknownValues: false,//Если true, попытки проверить неизвестные объекты немедленно завершатся неудачно.
+        // transform:true,// запускает трансформацию запроса к указанному примитивному типу
+        exceptionFactory: (errors) => {//формат овывода ошибки
             const errorsForResponse = []
             errors.forEach((e) => {
                 const constraintsKeys = Object.keys(e.constraints)

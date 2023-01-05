@@ -9,7 +9,6 @@ import { TestingController } from './testing/testing.controller';
 import { UserService } from './users/users.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './users/user.model';
-import { Auth, AuthSchema } from './auth/auth.model';
 // import { UserSchemaClass } from './user/user.model';
 import { BlogsService } from './blogs/blogs.service';
 import { PostsService } from './posts/posts.service';
@@ -19,15 +18,16 @@ import { Post, PostSchema } from './posts/post.model';
 import { CommentsService } from './comments/comments.service';
 import { CommentSchema, Comment } from './comments/comment.model';
 import { CommentIdValidatorPipe } from './_commons/pipes/commentId.validation.pipe';
+import { Auth, AuthSchema } from './auth/auth.model';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb+srv://AlexGr:mth0F2JOfBhmJlk4@cluster0.ojk6ayv.mongodb.net/?retryWrites=true&w=majority'),
+    MongooseModule.forRoot('mongodb+srv://AlexGr:mth0F2JOfBhmJlk4@cluster0.ojk6ayv.mongodb.net/?retryWrites=true&w=majority',{dbName:'learning'}),
+    MongooseModule.forFeature([{ name: Auth.name, schema: AuthSchema }]),
     MongooseModule.forFeature([{ name: Comment.name, schema: CommentSchema }]),
     MongooseModule.forFeature([{ name: Post.name, schema: PostSchema }]),
     MongooseModule.forFeature([{ name: Blog.name, schema: BlogSchema }]),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    MongooseModule.forFeature([{ name: Auth.name, schema: AuthSchema }]),
   ],
   // imports: [MongooseModule, UserModule],
   controllers: [AppController, UserController, PostsController, CommentsController, BlogsController, TestingController, CommentsController],

@@ -1,5 +1,5 @@
 import { Injectable, PipeTransform, ArgumentMetadata, HttpException } from "@nestjs/common"
-import { CommentsService } from "src/comments/comments.service"
+import { CommentsService } from "../../comments/comments.service"
 import { HTTP_STATUSES } from "../types/types"
 
 //pipe проверки существования comment по id

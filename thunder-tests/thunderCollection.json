@@ -12,5 +12,26 @@
     "created": "2022-12-17T21:30:25.975Z",
     "sortNum": 20000,
     "folders": []
+  },
+  {
+    "_id": "c15ddffa-0f58-4d69-8518-4f804a067cd8",
+    "colName": "Testing",
+    "created": "2022-12-24T16:16:02.824Z",
+    "sortNum": 30000,
+    "folders": []
+  },
+  {
+    "_id": "da8af825-dad6-4e39-9227-ad409a9aba70",
+    "colName": "Blogs",
+    "created": "2023-01-03T10:49:11.707Z",
+    "sortNum": 40000,
+    "folders": []
+  },
+  {
+    "_id": "3e49f591-1a7f-4124-acef-ab41d613ed25",
+    "colName": "Posts",
+    "created": "2023-01-03T10:56:09.681Z",
+    "sortNum": 50000,
+    "folders": []
   }
 ]

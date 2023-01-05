@@ -1,8 +1,8 @@
 // import { Request } from 'express';
+import { Type } from 'class-transformer';
+import { IsNumber, IsOptional } from 'class-validator';
 import { Request, Response } from 'express-serve-static-core';
-
 import { IncomingHttpHeaders } from 'node:http';
-// import { AccessTokenPayloadModel, RefreshTokenPayloadModel } from '../../../Auth/Tokenization/tokens-types';
 
 
 export enum HTTP_STATUSES {
@@ -49,5 +49,12 @@ export interface PaginatorQueries {
     pageNumber: number,
     pageSize: number,
     sortBy: string,
-    sortDirection: 1 | -1 
+    sortDirection: 1 | -1 // asc, desc
+}
+export class PaginatorQuery implements PaginatorQueries {
+    @IsOptional() searchNameTerm: string
+    @IsOptional() @Type(() => Number) pageNumber: number
+    @IsOptional() @Type(() => Number) pageSize: number
+    @IsOptional() sortBy: string
+    @IsOptional() @Type(() => Number) sortDirection: 1 | -1 // asc, desc
 }

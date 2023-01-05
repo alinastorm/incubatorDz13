@@ -1,8 +1,8 @@
 import { Controller, Get, Body, Post, Put, Param, Query, Res, Delete, HttpCode, UsePipes } from '@nestjs/common';
-import { CommentsService } from 'src/comments/comments.service';
-import { PostIdValidatorPipe } from 'src/_commons/pipes/postId.validation.pipe';
-import { PaginatorQueries } from 'src/_commons/types/types';
-import { PostInput, PostInputUpdateDto } from './post.model';
+import { CommentsService } from '../comments/comments.service';
+import { PostIdValidatorPipe } from '../_commons/pipes/postId.validation.pipe';
+import { PaginatorQuery } from '../_commons/types/types';
+import { PostInput, PostInputDto, PostInputUpdateDto } from './post.model';
 import { PostsService } from './posts.service';
 
 
@@ -14,18 +14,18 @@ export class PostsController {
     @Get(":postId/comments")
     readAllCommentsfromPost(
         @Param("postId") postId: string,
-        @Query() queries: PaginatorQueries) {
+        @Query() queries: PaginatorQuery) {
         return this.commentsService.readAllByPostIdWithPagination(postId, queries)
     }
 
     @Get()
-    readAllPosts(queries: PaginatorQueries) {
-        return this.postService.readAllWithPaginator(queries)
+    readAllPosts(@Query() query: PaginatorQuery) {
+        return this.postService.readAllWithPaginator(query)
     }
 
     @Post()
     addOnePost(
-        @Body() post: PostInput,
+        @Body() post: PostInputDto,
     ) {
         return this.postService.addOne(post)
     }
@@ -47,7 +47,7 @@ export class PostsController {
 
     @Delete(":id") @UsePipes(PostIdValidatorPipe) @HttpCode(204)
     deleteOnePost(
-        @Param() postId: string
+        @Param('id') postId: string
     ) {
         this.postService.deleteOnePost(postId)
     }

@@ -1,18 +1,18 @@
 import { Injectable, HttpException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from "mongoose";
+import { FilterQuery, Model } from "mongoose";
 import { LikeStatus } from "./like.model";
-import { Comment, CommentBdDocument, CommentSchema, CommentView, CommentViewDataMapper, LikesInfoView } from "./comment.model";
-import { Post, PostBdDocument } from 'src/posts/post.model';
-import { User, UserBdDocument } from 'src/users/user.model';
-import { HTTP_STATUSES, Paginator, PaginatorQueries } from 'src/_commons/types/types';
-import { setPaginator } from 'src/_commons/helpers/paginator';
+import { Comment, CommentBd, CommentBdDocument, CommentSchema, CommentView, CommentViewDataMapper, LikesInfoView } from "./comment.model";
+import { Post, PostDocument } from '../posts/post.model';
+import { User, UserBdDocument } from '../users/user.model';
+import { HTTP_STATUSES, Paginator, PaginatorQueries } from '../_commons/types/types';
+import { setPaginator } from '../_commons/helpers/paginator';
 
 @Injectable()
 export class CommentsService {
     constructor(
         @InjectModel(Comment.name) private CommentModel: Model<CommentBdDocument>,
-        @InjectModel(Post.name) private PostModel: Model<PostBdDocument>,
+        @InjectModel(Post.name) private PostModel: Model<PostDocument>,
         @InjectModel(User.name) private UserModel: Model<UserBdDocument>,
     ) { }
     async readOneByUserId(userId: string): Promise<CommentView> {
@@ -42,22 +42,24 @@ export class CommentsService {
         }
     }
     async readAllByPostIdWithPagination(postId: string, queries: PaginatorQueries, userId?: string): Promise<Paginator<CommentView>> {
-        const filter = { postId }
-        const { pageNumber, pageSize, sortBy, sortDirection = 1 } = queries
-        const docCount = await this.CommentModel.countDocuments()
-        CommentSchema.virtual('likesInfo.myStatus', { ref: 'Likes', localField: '_id', foreignField: 'commentId', options: { match: { userId: userId } } })//TODO всунуть в метод .Метод в модель и вызывать создание виртуальных полей. 
-            .get(function () { return LikeStatus.None })
+        const filter: FilterQuery<CommentBd> = { postId}
+        const { pageNumber = 1, pageSize = 10, sortBy = 'createdAt', sortDirection = -1, searchNameTerm } = queries
 
+        if (searchNameTerm) filter['name'] = { name: { $regex: searchNameTerm, $options: 'i' } }
+        // CommentSchema.virtual('likesInfo.myStatus', { ref: 'Likes', localField: '_id', foreignField: 'commentId', options: { match: { userId: userId } } })//TODO всунуть в метод .Метод в модель и вызывать создание виртуальных полей. 
+        //     .get(function () { return LikeStatus.None })
+
+        const count = await this.CommentModel.countDocuments(filter);
         const commentsModel = await this.CommentModel
             .find(filter)
             .populate('likesInfo.myStatus', 'myStatus')
             .skip((pageNumber - 1) * pageSize)
             .limit(pageSize)
             .sort({ [sortBy]: sortDirection })
-            .lean({ virtuals: true })
+            // .lean({ virtuals: true })
 
         const comments = commentsModel.map(CommentViewDataMapper)
-        const result = setPaginator(comments, pageNumber, pageSize, docCount)
+        const result = setPaginator(comments, pageNumber, pageSize, count)
         return result
     }
 }

@@ -23,32 +23,32 @@ export interface UserBd {
     confirm: boolean //мое
     createdAt?: string //	TODO в дз не обязательный в интерфей
 }
-export interface UsersSearchPaginationMongoDb {
-    /**Search term for user Login: Login should contains this term in any position
-     * Default value : null
-     */
-    searchLoginTerm: string
-    /**Search term for user Email: Email should contains this term in any position
-     * Default value : null
-     */
-    searchEmailTerm: string
-    /**PageNumber is number of portions that should be returned.
-     * Default value : 1
-     */
-    pageNumber: number
-    /**PageSize is portions size that should be returned
-     * Default value : 10
-     */
-    pageSize: number
-    /** Sorting term
-     * Default value : createdAt
-     */
-    sortBy: string
-    /** Sorting direction
-     * Default value: desc
-     */
-    sortDirection: 1 | -1
-}
+// export interface UsersSearchPaginationMongoDb {
+//     /**Search term for user Login: Login should contains this term in any position
+//      * Default value : null
+//      */
+//     searchLoginTerm: string
+//     /**Search term for user Email: Email should contains this term in any position
+//      * Default value : null
+//      */
+//     searchEmailTerm: string
+//     /**PageNumber is number of portions that should be returned.
+//      * Default value : 1
+//      */
+//     pageNumber: number
+//     /**PageSize is portions size that should be returned
+//      * Default value : 10
+//      */
+//     pageSize: number
+//     /** Sorting term
+//      * Default value : createdAt
+//      */
+//     sortBy: string
+//     /** Sorting direction
+//      * Default value: desc
+//      */
+//     sortDirection: 1 | -1
+// }
 export class UserInputDto {
     @IsNotEmpty() @IsString() @MinLength(3) @MaxLength(10) @ApiProperty()
     login: string /**  maxLength: 10 minLength: 3*/
@@ -57,7 +57,6 @@ export class UserInputDto {
     @IsEmail() @ApiProperty({ default: "753464@gmail.com" })
     email: string // pattern: ^ [\w -\.] +@([\w -] +\.) +[\w -]{ 2, 4 } $ 
 }
-
 export type UserBdDocument = HydratedDocument<UserBd>;
 export type UserViewDocument = HydratedDocument<UserView>;
 
@@ -67,7 +66,7 @@ export class User implements Omit<UserBd, '_id'> {
     @Prop({ required: true }) login: string
     @Prop() @IsEmail() email: string
     @Prop() confirm: boolean //мое
-    @Prop() createdAt: string 
+    @Prop() createdAt: string
 
 }
 export const UserSchema = SchemaFactory.createForClass(User);

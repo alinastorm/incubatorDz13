@@ -39,7 +39,6 @@ export interface MeView {
     login: string
     userId: string
 }
-
 export type AuthDocument = HydratedDocument<AuthBd>;
 
 @Schema()

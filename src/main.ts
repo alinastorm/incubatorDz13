@@ -9,7 +9,7 @@ async function bootstrap() {
   app.enableCors();
   //Global pipe
   app.useGlobalPipes(validationPipe)
-  //swager
+  //swager http://localhost:9002/api
   const config = new DocumentBuilder()
     .setTitle('Median')
     .setDescription('The Median API description')

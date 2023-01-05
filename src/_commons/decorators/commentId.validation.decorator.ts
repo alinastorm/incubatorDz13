@@ -2,7 +2,7 @@ import { Injectable, HttpException, UnprocessableEntityException } from '@nestjs
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from "mongoose";
 import { registerDecorator, ValidationOptions, ValidatorConstraint, ValidatorConstraintInterface, } from 'class-validator';
-import { Comment, CommentBdDocument } from 'src/comments/comment.model';
+import { Comment, CommentBdDocument } from '../../comments/comment.model';
 import { HTTP_STATUSES } from '../types/types';
 
 

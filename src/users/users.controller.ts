@@ -2,14 +2,17 @@ import { Controller, Get, Body, Post, Param, Query, Res, Delete, HttpCode } from
 import { UserInput, UserViewDocument, userViewDataMapper, UserInputDto } from './user.model';
 import { UserService } from './users.service';
 import { Response } from 'express';
+import { PaginatorQuery } from '../_commons/types/types';
 //TODO
 @Controller('users') export class UserController {
 
     constructor(protected userService: UserService) { }
 
     @Get()
-    async readAllUsers() {
-        return await this.userService.readAll()
+    async readAllUsers(
+        @Query() queries: PaginatorQuery
+    ) {     
+        return await this.userService.readAllWithPaginator(queries)
     }
 
     @Post()

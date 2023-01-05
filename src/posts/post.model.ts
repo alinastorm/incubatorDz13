@@ -1,5 +1,6 @@
-import { Document, HydratedDocument, ObjectId, SchemaTypes } from "mongoose"
-import { LikeStatus } from "src/comments/like.model"
+import { Logger } from '@nestjs/common';
+import { Document, HydratedDocument, ObjectId, SchemaTypes, model } from "mongoose"
+import { LikeStatus } from "../comments/like.model"
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { MaxLength, MinLength, ArrayMinSize, IsArray, IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, IsMongoId } from 'class-validator';
 
@@ -10,6 +11,11 @@ export interface PostInput {
     shortDescription: string//    maxLength: 100
     content: string//maxLength: 1000
     blogId: string
+}
+export interface BlogPostInput {
+    title: string//    maxLength: 30
+    shortDescription: string//    maxLength: 100
+    content: string//maxLength: 1000
 }
 export class PostInputDto implements PostInput {
     @IsString() @MinLength(1) @MaxLength(30) title: string//    maxLength: 30
@@ -79,13 +85,9 @@ export interface LikeDetails {
     userId: string //	string    nullable: true,
     login: string //	string    nullable: true}
 }
+export type PostDocument = HydratedDocument<Post & { extendedLikesInfo: VirtualExtendedLikesInfoBd }>;
 
-// export type PostBdDocument = Document<unknown, any, Post> & Post & Required<{
-//     _id: string;
-// }>
-export type PostBdDocument = HydratedDocument<PostBd & { extendedLikesInfo: VirtualExtendedLikesInfoBd }>;
-
-export type PostViewDocument = HydratedDocument<PostView>;
+// export type PostViewDocument = HydratedDocument<PostView>;
 
 @Schema({ versionKey: false })
 export class LikeDetails implements LikeDetails {
@@ -93,21 +95,12 @@ export class LikeDetails implements LikeDetails {
     @Prop() userId: string //	string    nullable: true,
     @Prop() login: string //	string    nullable: true} 
 }
-@Schema({ versionKey: false })
+@Schema({ versionKey: false, _id: false })
 export class ExtendedLikesInfo implements ExtendedLikesInfoBd {
-
     /** Likes */
     @Prop() likes: LikeDetails[]
     /** Deslike */
     @Prop() deslike: LikeDetails[]
-    /** Virtual field */
-    // @Prop() dislikesCount: number
-    /** Virtual field */
-    // @Prop() likesCount: number
-    /** Virtual field */
-    // @Prop() myStatus: LikeStatus
-    /** Virtual field */
-    // @Prop() newestLikes: LikeDetails[] | []
 }
 export const ExtendedLikesInfoSchema = SchemaFactory.createForClass(ExtendedLikesInfo);
 ExtendedLikesInfoSchema.virtual('likesCount').get(function (this: ExtendedLikesInfo) {
@@ -119,9 +112,19 @@ ExtendedLikesInfoSchema.virtual('dislikesCount').get(function (this: ExtendedLik
 ExtendedLikesInfoSchema.virtual('newestLikes').get(function (this: ExtendedLikesInfo) {
     return this.likes.slice(0, 3);
 });
+let userId = null
+ExtendedLikesInfoSchema.virtual('myStatus').get(function () {
+    const likes = this.likes.filter((elem) => elem.userId === userId)
+    const deslikes = this.deslike.filter((elem) => elem.userId === userId)
+    userId = null
+    const result: LikeStatus =
+        (likes[0] ? LikeStatus.Like : undefined) ||
+        (deslikes[0] ? LikeStatus.Dislike : undefined) ||
+        LikeStatus.None
+    return result
+})
 @Schema({ versionKey: false })
 export class Post implements Omit<PostBd, '_id'> {
-
     // @Prop({ type: SchemaTypes.ObjectId }) _id: ObjectId //если объявить то при создании необходимо указать ObjectId если не указать MongoDb само генерирует
     @Prop() title: string
     @Prop() shortDescription: string
@@ -129,13 +132,15 @@ export class Post implements Omit<PostBd, '_id'> {
     @Prop() blogId: string
     @Prop() blogName: string
     @Prop() createdAt: string//TODO в дз не обязательный в интерфей
-    @Prop({ type: ExtendedLikesInfoSchema, default: () => ({}) })
-    extendedLikesInfo: ExtendedLikesInfo
+    @Prop({ type: ExtendedLikesInfoSchema, default: () => ({}) }) extendedLikesInfo: ExtendedLikesInfo
+    // static userId: string;
+    // static setUserId(id: string) { this.userId = id }
 }
-
 export const PostSchema = SchemaFactory.createForClass(Post);
-
-export function postViewDataMapper(value: PostBdDocument | null): PostView | null {
+PostSchema.statics.setUserId = function (this: any, id: string) {
+    userId = id
+}
+export function postViewDataMapper(value: PostDocument | null): PostView | null {
     return value ?
         {
             id: value._id.toString(), //?? value.id,//value.id так как пихаю в старый модуль repository а он мапит _id=>id 

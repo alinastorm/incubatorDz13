@@ -1,15 +1,15 @@
 import { HttpException, Injectable, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserBd, UserBdDocument, UserInput, userViewDataMapper, UserView } from './user.model';
-import { Model, ObjectId } from 'mongoose';
-import { Auth, AuthDocument, AuthView } from 'src/auth/auth.model';
-import { CryptoService } from 'src/_commons/services/crypto-service';
-import { HTTP_STATUSES } from 'src/_commons/types/types';
+import { CallbackError, FilterQuery, Model, ObjectId } from 'mongoose';
+import { CryptoService } from '../_commons/services/crypto-service';
+import { HTTP_STATUSES, Paginator, PaginatorQueries } from '../_commons/types/types';
+import { Auth, AuthDocument, AuthView } from '../auth/auth.model';
+import { setPaginator } from '../_commons/helpers/paginator';
 
 
 @Injectable()
 export class UserService {
-
     constructor(
         @InjectModel(User.name) private UserModel: Model<UserBdDocument>,
         @InjectModel(Auth.name) private AuthModel: Model<AuthDocument>,
@@ -19,6 +19,25 @@ export class UserService {
     async readAll() {
         const users = await this.UserModel.find().lean()
         return users.map(userViewDataMapper)
+    }
+    async readAllWithPaginator(query: PaginatorQueries): Promise<Paginator<UserView>> {
+
+        const { pageNumber = 1, pageSize = 10, sortBy = 'createdAt', sortDirection = -1, searchNameTerm } = query
+        let filter: FilterQuery<UserBd> = {}
+        if (searchNameTerm) filter.$or?.push({ email: { $regex: searchNameTerm, $options: 'i' } })
+        if (searchNameTerm) filter.$or?.push({ login: { $regex: searchNameTerm, $options: 'i' } })
+        // if (searchNameTerm) filter = { login: { $regex: searchNameTerm, $options: 'i' } }
+        const count = await this.UserModel.countDocuments(filter);
+        const postsModel = await this.UserModel
+            .find(filter)
+            .skip((pageNumber - 1) * pageSize)
+            .limit(pageSize)
+            .sort({ [sortBy]: sortDirection })
+            // .lean({ virtuals: true })
+
+        const posts = postsModel.map(userViewDataMapper)
+        const result = setPaginator(posts, pageNumber, pageSize, count)
+        return result
     }
     async addOne({ email, login, password }: UserInput): Promise<UserView | HttpException> {
         //проверка уникальный login

@@ -1,9 +1,7 @@
-import { Logger } from '@nestjs/common';
-import { Document, HydratedDocument, ObjectId, SchemaTypes, model } from "mongoose"
+import { HydratedDocument, ObjectId, Query } from "mongoose"
 import { LikeStatus } from "../comments/like.model"
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { MaxLength, MinLength, ArrayMinSize, IsArray, IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, IsMongoId } from 'class-validator';
-
+import { MaxLength, MinLength, IsString, IsMongoId } from 'class-validator';
 
 //Types
 export interface PostInput {
@@ -55,16 +53,16 @@ export interface ExtendedLikesInfoBd {
     /** Deslike */
     deslike: LikeDetails[]
 }
-export interface VirtualExtendedLikesInfoBd {
-    /** Virtual field */
-    dislikesCount: number
-    /** Virtual field */
-    likesCount: number
-    /** Virtual field */
-    myStatus: LikeStatus
-    /** Virtual field */
-    newestLikes: LikeDetails[] | []
-}
+// export interface VirtualExtendedLikesInfoBd {
+//     /** Virtual field */
+//     dislikesCount: number
+//     /** Virtual field */
+//     likesCount: number
+//     /** Virtual field */
+//     myStatus: LikeStatus
+//     /** Virtual field */
+//     newestLikes: LikeDetails[] | []
+// }
 export interface ExtendedLikesInfoView {
     /** Total likes for parent item */
     /** Virtual prop Mongoose*/
@@ -85,9 +83,7 @@ export interface LikeDetails {
     userId: string //	string    nullable: true,
     login: string //	string    nullable: true}
 }
-export type PostDocument = HydratedDocument<Post & { extendedLikesInfo: VirtualExtendedLikesInfoBd }>;
-
-// export type PostViewDocument = HydratedDocument<PostView>;
+export type PostDocument = HydratedDocument<Post & { extendedLikesInfo: ExtendedLikesInfoBd }>;
 
 @Schema({ versionKey: false })
 export class LikeDetails implements LikeDetails {
@@ -103,26 +99,7 @@ export class ExtendedLikesInfo implements ExtendedLikesInfoBd {
     @Prop() deslike: LikeDetails[]
 }
 export const ExtendedLikesInfoSchema = SchemaFactory.createForClass(ExtendedLikesInfo);
-ExtendedLikesInfoSchema.virtual('likesCount').get(function (this: ExtendedLikesInfo) {
-    return this.likes.length;
-});
-ExtendedLikesInfoSchema.virtual('dislikesCount').get(function (this: ExtendedLikesInfo) {
-    return this.deslike.length;
-});
-ExtendedLikesInfoSchema.virtual('newestLikes').get(function (this: ExtendedLikesInfo) {
-    return this.likes.slice(0, 3);
-});
-let userId = null
-ExtendedLikesInfoSchema.virtual('myStatus').get(function () {
-    const likes = this.likes.filter((elem) => elem.userId === userId)
-    const deslikes = this.deslike.filter((elem) => elem.userId === userId)
-    userId = null
-    const result: LikeStatus =
-        (likes[0] ? LikeStatus.Like : undefined) ||
-        (deslikes[0] ? LikeStatus.Dislike : undefined) ||
-        LikeStatus.None
-    return result
-})
+
 @Schema({ versionKey: false })
 export class Post implements Omit<PostBd, '_id'> {
     // @Prop({ type: SchemaTypes.ObjectId }) _id: ObjectId //если объявить то при создании необходимо указать ObjectId если не указать MongoDb само генерирует
@@ -131,19 +108,26 @@ export class Post implements Omit<PostBd, '_id'> {
     @Prop() content: string
     @Prop() blogId: string
     @Prop() blogName: string
-    @Prop() createdAt: string//TODO в дз не обязательный в интерфей
-    @Prop({ type: ExtendedLikesInfoSchema, default: () => ({}) }) extendedLikesInfo: ExtendedLikesInfo
-    // static userId: string;
-    // static setUserId(id: string) { this.userId = id }
+    @Prop() createdAt: string
+    @Prop({ type: ExtendedLikesInfoSchema, default: () => ({}) }) extendedLikesInfo: ExtendedLikesInfo//такая конструкция дает дефолтное создание likes[] dislikes[] при создании Post
 }
 export const PostSchema = SchemaFactory.createForClass(Post);
-PostSchema.statics.setUserId = function (this: any, id: string) {
-    userId = id
+
+function getMyStatus(userId: string) {
+    if (!userId) return LikeStatus.None
+    const likes = this.likes.filter((elem) => elem.userId === userId)
+    const deslikes = this.deslike.filter((elem) => elem.userId === userId)
+    const result: LikeStatus =
+        (likes[0] ? LikeStatus.Like : undefined) ||
+        (deslikes[0] ? LikeStatus.Dislike : undefined) ||
+        LikeStatus.None
+    return result
 }
-export function postViewDataMapper(value: PostDocument | null): PostView | null {
+export function postViewDataMapper(value: PostDocument | null, userId?: string): PostView | null {
+
     return value ?
         {
-            id: value._id.toString(), //?? value.id,//value.id так как пихаю в старый модуль repository а он мапит _id=>id 
+            id: value._id.toString(), //?? value.id,//value.id так как пихаю в старый модуль repository а он мапит _id=>id
             title: value.title,
             shortDescription: value.shortDescription,
             content: value.content,
@@ -151,10 +135,16 @@ export function postViewDataMapper(value: PostDocument | null): PostView | null 
             blogName: value.blogName,
             createdAt: value.createdAt,//TODO в дз не обязательный в интерфей
             extendedLikesInfo: {
-                dislikesCount: value.extendedLikesInfo.dislikesCount,
-                likesCount: value.extendedLikesInfo.likesCount,
-                myStatus: value.extendedLikesInfo.myStatus,
-                newestLikes: value.extendedLikesInfo.newestLikes,
+                dislikesCount: value.extendedLikesInfo.deslike.length,
+                likesCount: value.extendedLikesInfo.likes.length,
+                myStatus: getMyStatus(userId),
+                newestLikes: value.extendedLikesInfo.likes.slice(0, 3),
             },
         } : null
 }
+export const postQueryHelpers = {
+    myFind(this: Query<any, PostDocument> | null, name: string) {
+        return this.find({ name });
+    }
+}
+PostSchema.query = postQueryHelpers

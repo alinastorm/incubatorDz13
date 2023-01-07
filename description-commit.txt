@@ -8,3 +8,4 @@
 1.0.7 feat: All routes except Testing
 1.0.8 feat: Create tests. Testing
 1.0.9 feat: dz13
+1.0.10 feat: refactor Post virtual getter to mapper

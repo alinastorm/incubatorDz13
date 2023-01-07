@@ -1,3 +1,4 @@
+import { ConfigModule } from '@nestjs/config'
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -18,12 +19,16 @@ import { Post, PostSchema } from './posts/post.model';
 import { CommentsService } from './comments/comments.service';
 import { CommentSchema, Comment } from './comments/comment.model';
 import { CommentIdValidatorPipe } from './_commons/pipes/commentId.validation.pipe';
-import { Auth, AuthSchema } from './auth/auth.model';
+import { Auth, AuthSchema } from './auth/authentications/auth.model';
 import { AppLoggerMiddleware } from './_commons/helpers/logger';
+import { JwtModule } from '@nestjs/jwt'
+// import './_commons/utils/mongoose.utils';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb+srv://AlexGr:mth0F2JOfBhmJlk4@cluster0.ojk6ayv.mongodb.net/?retryWrites=true&w=majority',{dbName:'learning'}),
+    ConfigModule.forRoot(),
+    JwtModule.register({}),
+    MongooseModule.forRoot('mongodb+srv://AlexGr:mth0F2JOfBhmJlk4@cluster0.ojk6ayv.mongodb.net/?retryWrites=true&w=majority', { dbName: 'learning' }),
     MongooseModule.forFeature([{ name: Auth.name, schema: AuthSchema }]),
     MongooseModule.forFeature([{ name: Comment.name, schema: CommentSchema }]),
     MongooseModule.forFeature([{ name: Post.name, schema: PostSchema }]),
@@ -43,4 +48,4 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
     consumer.apply(AppLoggerMiddleware).forRoutes('*');
   }
- }
+}

@@ -28,7 +28,7 @@ import { JwtModule } from '@nestjs/jwt'
   imports: [
     ConfigModule.forRoot(),
     JwtModule.register({}),
-    MongooseModule.forRoot('mongodb+srv://AlexGr:mth0F2JOfBhmJlk4@cluster0.ojk6ayv.mongodb.net/?retryWrites=true&w=majority', { dbName: 'learning' }),
+    MongooseModule.forRoot(process.env.MONGO_URL_ATLAS, { dbName: process.env.MONGO_DB_NAME }),
     MongooseModule.forFeature([{ name: Auth.name, schema: AuthSchema }]),
     MongooseModule.forFeature([{ name: Comment.name, schema: CommentSchema }]),
     MongooseModule.forFeature([{ name: Post.name, schema: PostSchema }]),
